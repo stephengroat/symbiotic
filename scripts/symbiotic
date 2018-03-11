@@ -64,7 +64,6 @@ where OPTS can be following:
                               but replace it with 0.
     --malloc-never-fails      Suppose malloc and calloc never return NULL
     --undefined-are-pure      Suppose that undefined functions have no side-effects
-    --require-slicer          Abort if slicing fails (default is to use the original file)
     --no-verification         Do not run verification phase (handy for debugging)
     --optimize=opt1,...       Run optimizations, every item in the optimizations list
                               is a string of type when-level, where when is 'before'
@@ -329,7 +328,7 @@ def parse_command_line():
         opts, args = getopt.getopt(sys.argv[1:], '',
                                    ['no-slice', '32', 'prp=', 'no-optimize',
                                     'debug=', 'timeout=', 'version', 'help',
-                                    'libc=', 'old-slicer', 'require-slicer',
+                                    'libc=',
                                     'no-verification', 'output=', 'witness=', 'bc',
                                     'optimize=', 'no-prepare', 'malloc-never-fails',
                                     'pta=', 'no-libc', 'slicing-criterion=',
@@ -395,11 +394,6 @@ def parse_command_line():
         elif opt == '--no-verification':
             dbg('Will not run verification phase')
             options.no_verification = True
-        elif opt == '--require-slicer':
-            options.require_slicer = True
-        elif opt == '--old-slicer':
-            dbg('Will use old slicer')
-            options.old_slicer = True
         elif opt == '--32':
             dbg('Will use 32-bit environment')
             options.is32bit = True
@@ -420,17 +414,17 @@ def parse_command_line():
             for prp in options.orig_prp:
                 dbg('Property: {0}'.format(prp))
         elif opt == '--pta':
-            options.slicer_pta = arg
+            options.slicer.pta = arg
             if not arg in ['fs', 'fi', 'old']:
                 err('Points-to analysis can be one of: fs, fi, old')
 
             dbg('Points-to: {0}'.format(arg))
         elif opt == '--slicing-criterion':
-            options.slicing_criterion = arg
+            options.slicer.criterion = arg
             dbg('Slicing criterion: {0}'.format(arg))
         elif opt == '--repeat-slicing':
             try:
-                options.repeat_slicing = int(arg)
+                options.slicer.repeat_num = int(arg)
             except ValueError:
                 err('Invalid argument for --repeat-slicing')
             dbg('Will repeat slicing {0} times'.format(arg))
@@ -457,7 +451,7 @@ def parse_command_line():
             global CPPFLAGS
             options.CPPFLAGS += arg.split()
         elif opt == '--slicer-params':
-            options.slicer_params = arg.split()
+            options.slicer.params = arg.split()
         elif opt == '--verifier-params':
             options.tool_params = arg.split()
         elif opt == '--link':
@@ -555,9 +549,7 @@ def remove_linkundef(options, what):
         pass
 
 def initialize_verifier(opts):
-    opts.slicing_criterion = '__VERIFIER_error,__assert_fail'
     remove_linkundef(opts, 'verifier')
-    opts.explicit_symbolic = True
 
     if opts.tool_name == 'klee':
         opts.explicit_symbolic = False

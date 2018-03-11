@@ -416,9 +416,9 @@ class Symbiotic(object):
     def slicer(self, criterion, add_params=[]):
         output = '{0}.sliced'.format(self.llvmfile[:self.llvmfile.rfind('.')])
         cmd = ['sbt-slicer', '-c', criterion]
-        if self.options.slicer_pta in ['fi', 'fs']:
+        if self.options.slicer.pta in ['fi', 'fs']:
             cmd.append('-pta')
-            cmd.append(self.options.slicer_pta)
+            cmd.append(self.options.slicer.pta)
 
         # we do that now using _get_stats
         # cmd.append('-statistics')
@@ -426,8 +426,8 @@ class Symbiotic(object):
         if self.options.undefined_are_pure:
             cmd.append('-undefined-are-pure')
 
-        if self.options.slicer_params:
-            cmd += self.options.slicer_params
+        if self.options.slicer.params:
+            cmd += self.options.slicer.params
 
         if add_params:
             cmd += add_params
@@ -564,15 +564,15 @@ class Symbiotic(object):
         print_elapsed_time('INFO: Compilation, preparation and '
                            'instrumentation time', color='WHITE')
 
-        for n in range(0, self.options.repeat_slicing):
+        for n in range(0, self.options.slicer.repeat_num):
             dbg('Slicing the code for the {0}. time'.format(n + 1))
             add_params = []
             # if n == 0 and self.options.repeat_slicing > 1:
             #    add_params = ['-pta-field-sensitive=8']
 
-            self.slicer(self.options.slicing_criterion, add_params)
+            self.slicer(self.options.slicer.criterion, add_params)
 
-            if self.options.repeat_slicing > 1:
+            if self.options.slicer.repeat_num > 1:
                 opt = get_optlist_after(self.options.optlevel)
                 if opt:
                     self.optimize(passes=opt)
