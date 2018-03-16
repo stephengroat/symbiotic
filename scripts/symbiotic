@@ -33,7 +33,7 @@ from symbiotic.utils.watch import ProcessWatch
 from symbiotic.utils.timeout import Timeout, start_timeout, stop_timeout
 from symbiotic.utils.process import ProcessRunner
 from symbiotic import SymbioticException, Symbiotic
-from symbiotic.options import SymbioticOptions
+from symbiotic.options import SymbioticOptions, SymbioticOptionsParser
 from symbiotic.witnesses.witnesses import GraphMLWriter
 from symbiotic.includepaths import IncludePathsSearcher
 from subprocess import call
@@ -574,6 +574,13 @@ if __name__ == "__main__":
     # store time when we have started, so that we can
     # measure how long Symbiotic ran
     start_time = time()
+
+    parser = SymbioticOptionsParser()
+    options = parser.parse()
+    print(options)
+    vars(options)
+    print(options.pta)
+    sys.exit(0)
 
     opts, args = parse_command_line()
     if len(args) < 1:
