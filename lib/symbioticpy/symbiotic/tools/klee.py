@@ -49,6 +49,7 @@ class SymbioticTool(KleeBase):
             ('EINVALINST', re.compile('.*LLVM ERROR: Code generator does not support.*')),
             ('EINITVALS', re.compile('.*unable to compute initial values.*')),
             ('ESYMSOL', re.compile('.*unable to get symbolic solution.*')),
+            ('ECONCRETIZED', re.compile('.*concretized symbolic size.*')),
             ('ESILENTLYCONCRETIZED', re.compile('.*silently concretizing.*')),
             ('EEXTRAARGS', re.compile('.*calling .* with extra arguments.*')),
             #('EABORT' , re.compile('.*abort failure.*')),
