@@ -284,6 +284,19 @@ class Symbiotic(object):
             else:
                 definitions = prefix + 'memsafety/{0}'.format(definitions)
                 assert os.path.isfile(definitions)
+        elif self.options.property.signedoverflow():
+            # default config file is 'config.json'
+            config = prefix + 'int_overflows/' + config_file
+            assert os.path.isfile(config)
+            # check whether we have this file precompiled
+            # (this may be a distribution where we're trying to
+            # avoid compilation of anything else than sources)
+            precompiled_bc = '{0}/{1}.bc'.format(libdir,definitions[:-2])
+            if os.path.isfile(precompiled_bc):
+                definitionsbc = precompiled_bc
+            else:
+                definitions = prefix + 'int_overflows/{0}'.format(definitions)
+                assert os.path.isfile(definitions)
         else:
             raise SymbioticException('BUG: Unhandled property')
 
@@ -655,6 +668,10 @@ class Symbiotic(object):
             # remove the original calls to __VERIFIER_error
             passes.append('-remove-error-calls')
 
+        if self.options.property.signedoverflow():
+            passes.append('-mem2reg')
+            passes.append('-break-crit-edges')
+
         if hasattr(self._tool, 'prepare'):
             passes += self._tool.prepare()
         self.run_opt(passes)
@@ -662,6 +679,9 @@ class Symbiotic(object):
         # we want to link memsafety functions before instrumentation,
         # because we need to check for invalid dereferences in them
         if self.options.property.memsafety():
+            self.link_undefined()
+
+        if self.options.property.signedoverflow():
             self.link_undefined()
 
         #################### #################### ###################
