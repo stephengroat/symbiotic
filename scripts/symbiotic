@@ -647,19 +647,20 @@ if __name__ == "__main__":
             err(' == FAILURE ==\n{0}'.format(str(e)))
 
         # FIXME: make tool specific
-        srcdir = os.path.dirname(symbiotic.llvmfile)
-        if res is None or not tool.name().startswith('klee'):
-            pass
-        elif res.startswith('false'):
-            if hasattr(symbiotic._tool, "describe_error"):
-                symbiotic._tool.describe_error(symbiotic.llvmfile)
+        if symbiotic.llvmfile:
+            srcdir = os.path.dirname(symbiotic.llvmfile)
+            if res is None or not tool.name().startswith('klee'):
+                pass
+            elif res.startswith('false'):
+                if hasattr(symbiotic._tool, "describe_error"):
+                    symbiotic._tool.describe_error(symbiotic.llvmfile)
 
-            if not opts.nowitness:
+                if not opts.nowitness:
+                    generate_counterexample(srcdir, sources, opts.property.getLTL(),
+                                            opts.is32bit, False, opts.witness_output)
+            elif res == 'true' and not opts.nowitness:
                 generate_counterexample(srcdir, sources, opts.property.getLTL(),
-                                        opts.is32bit, False, opts.witness_output)
-        elif res == 'true' and not opts.nowitness:
-            generate_counterexample(srcdir, sources, opts.property.getLTL(),
-                                    opts.is32bit, True, opts.witness_output)
+                                        opts.is32bit, True, opts.witness_output)
     except Timeout:
         sys.stdout.flush()
         sys.stderr.flush()

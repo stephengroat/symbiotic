@@ -64,8 +64,8 @@ class PrintWatch(ProcessWatch):
 class CompileWatch(ProcessWatch):
     """ Parse output of compilation """
 
-    def __init__(self):
-        ProcessWatch.__init__(self)
+    def __init__(self, lines = 100):
+        ProcessWatch.__init__(self, lines)
 
     def parse(self, line):
         if b'error:' in line:
@@ -220,8 +220,13 @@ class Symbiotic(object):
         cmd.append(llvmfile)
         cmd.append(source)
 
-        runcmd(cmd, CompileWatch(),
+        comp_output = runcmd(cmd, CompileWatch(),
                "Compiling source '{0}' failed".format(source))
+
+        if self.options.property.signedoverflow():
+            for out in comp_output:
+                if b'overflow in expression;' in out:
+                    return None
 
         return llvmfile
 
@@ -302,9 +307,11 @@ class Symbiotic(object):
 
         # module with defintions of instrumented functions
         if not definitionsbc:
-            definitionsbc = os.path.abspath(self._compile_to_llvm(definitions,\
+            llvm_file = self._compile_to_llvm(definitions,\
                  output=os.path.basename(definitions[:-2]+'.bc'),
-                 with_g=False, opts=['-O2']))
+                 with_g=False, opts=['-O2'])
+            assert llvm_file
+            definitionsbc = os.path.abspath(llvm_file)
 
         assert definitionsbc
 
@@ -569,11 +576,15 @@ class Symbiotic(object):
                 self.options.disabled_optimizations = ['-instcombine']
 
             llvms = self._compile_to_llvm(source, opts=opts)
+            if not llvms:
+                return False
+
             llvmsrc.append(llvms)
 
         # link all compiled sources to a one bytecode
         # the result is stored to self.llvmfile
         self.link('code.bc', llvmsrc)
+        return True
 
     def perform_slicing(self):
         # run optimizations that can make slicing more precise
@@ -645,7 +656,9 @@ class Symbiotic(object):
         if self.options.source_is_bc:
             self.llvmfile = self.sources[0]
         else:
-            self._compile_sources()
+            result = self._compile_sources()
+            if not result and self.options.property.signedoverflow():
+                return report_results('false(no-overflow)')
 
         # make the path absolute
         self.llvmfile = os.path.abspath(self.llvmfile)

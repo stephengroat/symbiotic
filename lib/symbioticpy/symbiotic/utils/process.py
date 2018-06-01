@@ -95,5 +95,6 @@ def runcmd(cmd, watch = ProcessWatch(), err_msg = ""):
         current_process = None
         raise SymbioticException(err_msg)
 
+    output = current_process.getOutput()
     current_process = None
-
+    return output
