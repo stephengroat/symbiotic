@@ -66,7 +66,8 @@ add_llvm_loadable_module(LLVMsbt
 				ReplaceUBSan.cpp
 				InstrumentAlloc.cpp
 				CountInstr.cpp
-				CheckUnsupported.cpp)
+				CheckUnsupported.cpp
+                PrepareOverflows.cpp)
 
 install(TARGETS LLVMsbt
 	LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
