@@ -101,14 +101,14 @@ struct PrepareOverflows : public FunctionPass {
          }
       }
 
-      for (const auto& p : insertAfterMap) {
-          p.second->insertAfter(p.first);
-      }
-
       // delete instructions that should be removed
       for (auto i = deleteInsts.rbegin(); i != deleteInsts.rend(); ++i ) {
           (*i)->eraseFromParent();
       }
+
+      deleteInsts.clear();
+      binOpsMap.clear();
+      replaceMap.clear();
       return false;
   }
 
@@ -116,7 +116,6 @@ struct PrepareOverflows : public FunctionPass {
    std::set<Instruction*> deleteInsts;
    std::map<Instruction*, Instruction::BinaryOps> binOpsMap;
    std::map<Instruction*, Value*> replaceMap;
-   std::map<Instruction*, Instruction*> insertAfterMap;
 };
 } // end of anonymous namespace
 
