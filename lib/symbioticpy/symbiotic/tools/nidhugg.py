@@ -26,7 +26,7 @@ try:
     from symbiotic.versions import llvm_version
 except ImportError:
     # the default version
-    llvm_version='4.0.1'
+    llvm_version='7.0.1'
 
 try:
     import benchexec.util as util
