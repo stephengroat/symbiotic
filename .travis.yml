@@ -1,7 +1,8 @@
 language: c
 addons:
   apt:
-    sources: [ 'ubuntu-toolchain-r-test' ]
+    sources:
+      - llvm-toolchain-trusty-4.0
     packages:
       - gcc-multilib
       - valgrind
