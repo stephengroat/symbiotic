@@ -3,4 +3,4 @@ addons:
   apt:
     packages:
       - gcc-multilib
-script: ./build.sh
+script: ./build.sh -j2
