@@ -4,4 +4,5 @@ addons:
     packages:
       - gcc-multilib
       - valgrind
+      - libedit-dev
 script: ./build.sh -j2
