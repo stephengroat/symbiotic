@@ -3,4 +3,5 @@ addons:
   apt:
     packages:
       - gcc-multilib
+      - valgrind
 script: ./build.sh -j2
